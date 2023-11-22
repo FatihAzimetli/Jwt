@@ -6,6 +6,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.util.AntPathMatcher;
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 
@@ -15,7 +16,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
-// Not: Bu calssda amacim gelen HTTP isteklerinde JWT tabanli kimlik dogrulamasi yapmaktir
+// Not: Bu classda amacim gelen HTTP isteklerinde JWT tabanli kimlik dogrulamasi yapmaktir
 public class AuthTokenFilter extends OncePerRequestFilter {
 
     @Autowired
@@ -47,6 +48,7 @@ public class AuthTokenFilter extends OncePerRequestFilter {
         filterChain.doFilter(request, response);
     }
 
+    //Not: bu methodda, requestin icinden JWT tokeni cekecegim
     private String parseJwt(HttpServletRequest request){
 
         String header = request.getHeader("Authorization");
@@ -54,5 +56,14 @@ public class AuthTokenFilter extends OncePerRequestFilter {
             return header.substring(7);
         }
         return null;
+    }
+
+        // Not: shouldNotFilter Metodu ****************************
+
+    @Override
+    protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
+        AntPathMatcher antMatcher = new AntPathMatcher();
+        return antMatcher.match("/register", request.getServletPath()) ||
+                antMatcher.match("/login", request.getServletPath());
     }
 }
